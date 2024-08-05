@@ -1,0 +1,1 @@
+export const LINK_API = 'https://alert-app-api.kollectifnumerique.tech/api'
