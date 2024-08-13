@@ -1,12 +1,92 @@
-import * as React from 'react';
+import React,{useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LINK_API } from '../AppConfig';
+import * as Location from 'expo-location';
+import axios from 'axios';
+const sendLocation = (data)=>{
+    // const axios = require('axios');
+
+// Définir les données sous forme d'objet JavaScript
+// const data = {
+//   longitude: 80,
+//   latitude: 100,
+//   user_id: 1
+// };
+
+// Configurer les paramètres de la requête
+const config = {
+  method: 'post',
+  url: `${LINK_API}/alert`, // Remplacez {{BASE_API}} par l'URL de votre API
+  headers: {
+    'Content-Type': 'application/json' // Assurez-vous que le serveur attend du JSON
+  },
+  data: data // Envoyer les données comme un objet JavaScript
+};
+
+// Envoyer la requête
+axios(config)
+  .then(function (response) {
+    console.log('Réponse du serveur:', JSON.stringify(response.data, null, 2));
+  })
+  .catch(function (error) {
+    console.error('Erreur lors de l\'envoi de la requête:', error.response);
+  });
+
+}
+
 
 function HomeScreen() {
     const [user,setUser] = React.useState(null)
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+    const [tracking, setTracking] = useState(false); // State to control tracking
+    const [subscription, setSubscription] = useState(null); 
+    const handleAlert = async ()=>{
+        if (tracking) {
+            // Stop tracking
+            
+            if (subscription) {
+                subscription.remove();
+                setSubscription(null);
+            }
+            setTracking(false);
+        } else {
+            // Request permissions and start tracking
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            const sub = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.BestForNavigation,
+                    timeInterval: 1000,
+                    distanceInterval: 1,
+                },
+                (newLocation) => {
+                    setLocation(newLocation);
+
+                    console.log('envoyer'+ JSON.stringify({
+                        longitude: newLocation.coords.longitude,
+                        latitude: newLocation.coords.latitude,
+                        user_id: 4
+                    }));
+                    sendLocation({
+                        longitude: newLocation.coords.longitude,
+                        latitude: newLocation.coords.latitude,
+                        user_id: 4
+                    })
+                }
+            );
+            setSubscription(sub);
+            setTracking(true);
+        }
+    }
+
     const getData = async (key) => {
         try {
           const jsonValue = await AsyncStorage.getItem(key);
@@ -35,7 +115,9 @@ function HomeScreen() {
           <Text style={styles.alertText}>{user && JSON.parse(user).user.name}</Text>
           <Text style={styles.alertText}>{user && JSON.parse(user).user.email}</Text>
         <View style={styles.body}>
-          <TouchableOpacity style={styles.alertButton}>
+          <TouchableOpacity style={styles.alertButton}
+            onPress={handleAlert}
+          >
             <Image source={require('../assets/alert.png')} style={styles.alertIcon} />
           </TouchableOpacity>
           <Text style={styles.alertText}>Alerter la police</Text>

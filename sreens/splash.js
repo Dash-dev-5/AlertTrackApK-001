@@ -7,7 +7,7 @@ import * as Animatable from 'react-native-animatable';
 export default function Splash() {
     const navigation = useNavigation()
     setTimeout( async() => {
-            AsyncStorage.clear()
+            // AsyncStorage.clear()
             try {
               const jsonValue = await AsyncStorage.getItem('Users');
             //   const jsonValueObjet = JSON.parse(jsonValue)

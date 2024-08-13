@@ -6,6 +6,7 @@ import Inscription from './sreens/inscription';
 import TabsHome from './sreens/tabsHome';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Maps from './sreens/Maps';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function App() {
         <Stack.Screen name="Connexion" component={Connexion} />
         <Stack.Screen name="Inscription" component={Inscription} />
         <Stack.Screen name="TabsHome" component={TabsHome} />
+        <Stack.Screen name="Maps" component={Maps} />
       </Stack.Navigator>
     </NavigationContainer>
   );
