@@ -125,9 +125,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
+    // alignItems: 'center',
     width:width,
     paddingTop: Platform.OS === 'android' ? 25 : 0,
+    
   },
   header: {
        // alignItems: 'center',
@@ -176,7 +177,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius : width * 0.08,
     padding: 20,
     alignItems: 'center',
-    flex:1
+    flex:1,
+    height:height * 0.8
   },
   formTitle: {
     fontSize: width * 0.06,

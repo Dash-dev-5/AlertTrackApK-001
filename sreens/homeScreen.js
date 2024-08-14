@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,46 +45,9 @@ function HomeScreen() {
     const [errorMsg, setErrorMsg] = useState(null);
     const [tracking, setTracking] = useState(false); // State to control tracking
     const [subscription, setSubscription] = useState(null); 
+    const navigation = useNavigation()
     const handleAlert = async ()=>{
-        if (tracking) {
-            // Stop tracking
-            
-            if (subscription) {
-                subscription.remove();
-                setSubscription(null);
-            }
-            setTracking(false);
-        } else {
-            // Request permissions and start tracking
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
-            }
-            const sub = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.BestForNavigation,
-                    timeInterval: 1000,
-                    distanceInterval: 1,
-                },
-                (newLocation) => {
-                    setLocation(newLocation);
-
-                    console.log('envoyer'+ JSON.stringify({
-                        longitude: newLocation.coords.longitude,
-                        latitude: newLocation.coords.latitude,
-                        user_id: 4
-                    }));
-                    sendLocation({
-                        longitude: newLocation.coords.longitude,
-                        latitude: newLocation.coords.latitude,
-                        user_id: 4
-                    })
-                }
-            );
-            setSubscription(sub);
-            setTracking(true);
-        }
+      navigation.navigate('OnAlert')
     }
 
     const getData = async (key) => {

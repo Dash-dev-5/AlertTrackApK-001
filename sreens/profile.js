@@ -5,34 +5,9 @@ import { LINK_API } from '../AppConfig';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import * as Location from 'expo-location';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import axios from 'axios';
-const sendLocation = (data)=>{
-    // const axios = require('axios');
 
-// Définir les données sous forme d'objet JavaScript
-const dataSend = JSON.stringify(data)
-
-// Configurer les paramètres de la requête
-const config = {
-  method: 'post',
-  url: `${LINK_API}/alert`, // Remplacez {{BASE_API}} par l'URL de votre API
-  headers: {
-    'Content-Type': 'application/json' // Assurez-vous que le serveur attend du JSON
-  },
-  data: dataSend // Envoyer les données comme un objet JavaScript
-};
-
-// Envoyer la requête
-axios(config)
-  .then(function (response) {
-    console.log('Réponse du serveur:', JSON.stringify(response.data, null, 2));
-  })
-  .catch(function (error) {
-    console.error('Erreur lors de l\'envoi de la requête:', error.response);
-  });
-
-}
 export default function Profile() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -40,7 +15,23 @@ export default function Profile() {
     const [urgency1, setUrgency1] = useState('');
     const [urgency2, setUrgency2] = useState('');
     const [addresse, setAddresse] = useState('');
+    const [user,setUser] = React.useState(null)
 
+    const getData = async (key) => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(key);
+      //   const jsonValueObjet = JSON.parse(jsonValue)
+      //   console.log('Debug'+jsonValue);
+        setUser(jsonValue)
+      } catch (e) {
+        // error reading value
+        console.error(e);
+        alert('erreur stockage get')
+
+      }
+    };
+    getData('Users')
+  console.log('Debut'+user);
     const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   useEffect(() => {
@@ -51,49 +42,10 @@ export default function Profile() {
         setErrorMsg('Permission to access location was denied');
         return;
       }
-
-    //   let location = await Location.getCurrentPositionAsync(
-    //     {
-    //         accuracy: Location.Accuracy.BestForNavigation,
-    //         maximumAge: 100,
-    //         timeout: 200,
-    //       }
-    //   );
-    // let locations = await Location.watchPositionAsync(
-    //     {accuracy:Location.Accuracy.BestForNavigation},
-    //     (loc) => {console.log(loc)}
-    //   );
-
-    subscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.BestForNavigation,
-          timeInterval: 1000,
-          distanceInterval: 1,
-        },
-        (newLocation) => {
-            // console.log('Debug',newLocation);
-          setLocation(newLocation);
-          sendLocation({
-            longitude: `${newLocation.coords.longitude}`,
-            latitude: `${newLocation.coords.latitude}`,
-            user_id: 4
-        })
-        latitude
-: 
-"-5.8413577000214230"
-longitude
-: 
-"13.4479780094753070"
-        }
-      );
-    //   location()
-    //   setLocation(locations);
+    subscription = await Location.getCurrentPositionAsync({});
+  setLocation(subscription);
     })();
-    return () => {
-        if (subscription) {
-          subscription.remove();
-        }
-      };
+
   }, []);
 
   let text = 'Waiting..';
@@ -105,7 +57,7 @@ longitude
   }
   const hendeleeSetPosition = () => {
     setAddresse(location !== null ? location.coords.latitude+'|'+location.coords.longitude : '')
-    navigation.navigate("Maps")
+    // navigation.navigate("Maps")
   }
    const navigation = useNavigation()
     const handleRegister = () => {
@@ -117,7 +69,7 @@ longitude
         "card_id": numberElect,
         "num_urgence_1": urgency1,
         "num_urgence_2": urgency2,
-        "user_id": 1
+        "user_id": JSON.parse(user).user.id
       });
       
   
@@ -125,7 +77,11 @@ longitude
         method: 'post',
         maxBodyLength: Infinity,
         url: `${LINK_API}/users/complete-profil`,
-        headers: {},
+        headers: {
+          'Accept': 'application/json',
+          'Authorization':'Bearer '+JSON.parse(user).access_token,
+          "content-type": "application/json"
+        },
         data: data
       };
   
@@ -133,7 +89,7 @@ longitude
         .then(response => {
           console.log(JSON.stringify(response.data));
           alert('Profil complete success ☺')
-          navigation.replace('Connexion')
+          navigation.replace('Home')
           
         })
         .catch(error => {
@@ -197,7 +153,11 @@ longitude
               value={addresse}
               onChangeText={setAddresse}
             />
-            <TouchableOpacity style={[styles.input,{width:'15%',justifyContent:'center',alignItems:'center',marginLeft:0}]} onPress={hendeleeSetPosition}>
+            <TouchableOpacity 
+              style={[styles.input,{width:'15%',justifyContent:'center',alignItems:'center',marginLeft:0}]} 
+              onPress={hendeleeSetPosition}
+              disabled={location === null ? true : false}
+              >
             <FontAwesome5 name="map-marker-alt" size={24} color="#fff" />
             </TouchableOpacity>
           </View>

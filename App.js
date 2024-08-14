@@ -7,6 +7,7 @@ import TabsHome from './sreens/tabsHome';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Maps from './sreens/Maps';
+import OnAlert from './sreens/onAlerting';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,7 @@ export default function App() {
         <Stack.Screen name="Inscription" component={Inscription} />
         <Stack.Screen name="TabsHome" component={TabsHome} />
         <Stack.Screen name="Maps" component={Maps} />
+        <Stack.Screen name="OnAlert" component={OnAlert} />
       </Stack.Navigator>
     </NavigationContainer>
   );

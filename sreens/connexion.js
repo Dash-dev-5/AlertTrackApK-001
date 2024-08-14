@@ -91,6 +91,13 @@ export default function Connexion() {
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Se connecter</Text>
           </TouchableOpacity>
+        <TouchableOpacity
+            onPress={()=>{
+                navigation.navigate('Inscription')
+            }}
+          >
+            <Text style={styles.forgotPassword}>S'inscrire</Text>
+          </TouchableOpacity>
         </View>
         <Text style={styles.footer}>Cette application est un produit de la PNC</Text>
       </View>
